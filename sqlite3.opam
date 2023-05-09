@@ -11,15 +11,14 @@ authors: [
   "Christian Szegedy <csdontspam@metamatix.com>"
 ]
 license: "MIT"
-tags: ["clib:sqlite3" "clib:pthread"]
+tags: ["clib:pthread"]
 homepage: "https://mmottl.github.io/sqlite3-ocaml"
 doc: "https://mmottl.github.io/sqlite3-ocaml/api"
 bug-reports: "https://github.com/mmottl/sqlite3-ocaml/issues"
 depends: [
-  "dune" {>= "2.7"}
+  "dune" {>= "3.0"}
   "ocaml" {>= "4.12"}
   "dune-configurator"
-  "conf-sqlite3" {build}
   "ppx_inline_test" {with-test}
   "odoc" {with-doc}
 ]

@@ -1,4 +1,4 @@
-(lang dune 2.7)
+(lang dune 3.0)
 (name sqlite3)
 
 (generate_opam_files true)
@@ -25,8 +25,7 @@ database engine with outstanding performance for many use cases.")
   (depends
     (ocaml (>= 4.12))
     dune-configurator
-    (conf-sqlite3 :build)
     (ppx_inline_test :with-test)
   )
-  (tags (clib:sqlite3 clib:pthread))
+  (tags (clib:pthread))
 )
