@@ -1030,3 +1030,63 @@ val busy_timeout : db -> int -> unit
 val sleep : int -> int
 (** [sleep ms] sleeps at least [ms] milliseconds.  @return the number of
     milliseconds of sleep actually requested from the operating system. *)
+
+
+module VFS : sig
+  type sqlite3_file
+
+  module type Fcntl = sig
+    type file
+
+    val get_lockstate: file -> int
+    val set_size_hint: file -> int64 -> unit
+    val get_size_limit: file -> int64 option
+    val set_size_limit: file -> int64 -> unit
+    val set_chunk_size: file -> int -> unit
+
+    (* There are many more opcodes. Grep FNCNTL in sqlite3.h *)
+  end
+
+  module type Io_methods_v1 = sig
+    type file
+
+    val close: file -> Rc.t
+    val read: file -> amt: int -> ofst: int64 -> (bytes Seq.t, Rc.t) result
+    val write: file -> bytes -> amt: int -> ofst: int64 -> Rc.t
+    val truncate: file -> int64 -> Rc.t
+    val sync: file -> flags: int -> Rc.t
+    val fileSize: file -> (int64, Rc.t) result
+    val lock: file -> int -> Rc.t
+    val unlock: file -> int -> Rc.t
+    val checkReservedLock: file -> (int, Rc.t) result
+    val fileControl: file -> op: int -> (int, Rc.t) result
+    val sectorSize: file -> int
+    val deviceCharacteristics: file -> int
+  end
+
+  type 'file io_methods
+
+  val io_methods_v1 : (module Io_methods_v1 with type file = 'file) -> 'file io_methods
+
+  val sqlite3_file : 'file io_methods -> sqlite3_file
+
+  module type Vfs_v1 = sig
+    val mxPathname: int
+    val name: string
+
+    val open_: name:string -> syncDir:int -> flags:int -> ((sqlite3_file * int), Rc.t) result
+    val delete: name: string -> syncDir:int -> Rc.t
+    val access: name: string -> flags: int -> (int, Rc.t) result
+    val fullPathname: name: string -> (string, Rc.t) result
+    (* val dlOpen: filename:string -> unit *)
+    (* val dlError: string -> unit *)
+    (* val dlSym *)
+    (* val dlClose  *)
+    val randomness: int -> bytes
+    val sleep: microseconds: int -> unit
+    val currentTime: unit -> float
+    val getLastError: int -> string
+  end
+
+  val register_vfs_v1: (module Vfs_v1) -> Rc.t
+end
